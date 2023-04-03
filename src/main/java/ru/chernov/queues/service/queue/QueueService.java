@@ -12,13 +12,11 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 
 
-/**
- * Временная заглушка вместо Редиса
- */
 @Service
 public class QueueService {
     private static final Logger logger = LogManager.getLogger(QueueService.class);
     private static final Integer QUEUE_SIZE = 1_000;
+    // TODO: map of queues
     private static final Queue<Object> QUEUE = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     private final ObjectMapper objectMapper;
