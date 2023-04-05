@@ -3,14 +3,15 @@ package ru.chernov.queues;
 import org.junit.jupiter.api.Test;
 
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static ru.chernov.queues.util.ThreadExceptionCatcher.catchException;
 
 
-// TODO: отлавливать эксепшены в потоках
 public class QueueTest extends AbstractTest {
     private static final String RECEIPTS_TOPIC = "receipts";
     private static final String NEWS_TOPIC = "news";
@@ -19,24 +20,25 @@ public class QueueTest extends AbstractTest {
 
 
     @Test
-    void produce() {
-        produce(NEWS_TOPIC).run();
+    void produce() throws Exception {
+        catchException(produce(NEWS_TOPIC));
     }
 
 
     @Test
-    void consumeEmpty() {
-        consume(NEWS_TOPIC).run();
+    void consumeEmpty() throws Exception {
+        catchException(consume(NEWS_TOPIC));
     }
 
 
     @Test
-    void produceAndConsume() {
-        produce(NEWS_TOPIC).run();
-        consume(NEWS_TOPIC).run();
+    void produceAndConsume() throws Exception {
+        catchException(produce(NEWS_TOPIC));
+        catchException(consume(NEWS_TOPIC));
     }
 
 
+    // TODO
     @Test
     void produceAndConsumeOneTopicParallel() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(2);
@@ -49,6 +51,7 @@ public class QueueTest extends AbstractTest {
     }
 
 
+    // TODO
     @Test
     void produceAndConsumeTwoTopicsParallel() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(4);
@@ -63,20 +66,32 @@ public class QueueTest extends AbstractTest {
     }
 
 
-    private Runnable produce(String topic) {
+    private Callable<Exception> produce(String topic) {
         return () -> {
-            for (var i = 0; i < ITERATIONS; i++) {
-                queueService.produce(topic, RANDOM.nextInt(10));
+            try {
+                for (var i = 0; i < ITERATIONS; i++) {
+                    queueService.produce(topic, RANDOM.nextInt(10));
+                }
+            } catch (Exception e) {
+                return e;
             }
+
+            return null;
         };
     }
 
 
-    private Runnable consume(String topic) {
+    private Callable<Exception> consume(String topic) {
         return () -> {
-            for (var i = 0; i < ITERATIONS; i++) {
-                queueService.consume(topic, Integer.class).ifPresent(System.out::println);
+            try {
+                for (var i = 0; i < ITERATIONS; i++) {
+                    queueService.consume(topic, Integer.class).ifPresent(System.out::println);
+                }
+            } catch (Exception e) {
+                return e;
             }
+
+            return null;
         };
     }
 
