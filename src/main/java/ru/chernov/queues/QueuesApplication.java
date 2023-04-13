@@ -4,10 +4,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import ru.chernov.queues.config.properties.QueueProperties;
+import ru.chernov.queues.config.properties.RedissonProperties;
 
 
 @EnableConfigurationProperties({
-        QueueProperties.class
+        QueueProperties.class,
+        RedissonProperties.class
 })
 @SpringBootApplication
 public class QueuesApplication {

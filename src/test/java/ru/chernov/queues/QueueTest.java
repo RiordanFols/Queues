@@ -1,6 +1,8 @@
 package ru.chernov.queues;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.ActiveProfiles;
+import ru.chernov.queues.consts.Profiles;
 import ru.chernov.queues.exception.QueueTopicNotFoundException;
 
 import java.util.Random;
@@ -16,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
+@ActiveProfiles({Profiles.DEFAULT_QUEUE})
 public class QueueTest extends AbstractTest {
     private static final String RECEIPTS_TOPIC = "receipts";
     private static final String NEWS_TOPIC = "news";

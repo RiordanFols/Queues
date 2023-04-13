@@ -4,78 +4,44 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
-import ru.chernov.queues.config.properties.QueueProperties;
-import ru.chernov.queues.config.properties.QueueProperties.QueueConfig;
 import ru.chernov.queues.exception.QueueReadException;
-import ru.chernov.queues.exception.QueueTopicNotFoundException;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 
 
-/**
- * Для топиков лучше не создавать enum, чтобы можно было докидывать новые топики без изменения кода приложения
- */
 @Service
-public class QueueService implements InitializingBean {
+public class QueueService {
     private static final Logger logger = LogManager.getLogger(QueueService.class);
-    private static final Map<String, Queue<Object>> QUEUES = new HashMap<>();
 
-    private final QueueProperties queueProperties;
     private final ObjectMapper objectMapper;
+    private final QueueProvider queueProvider;
 
 
-    public QueueService(QueueProperties queueProperties, ObjectMapper objectMapper) {
-        this.queueProperties = queueProperties;
+    public QueueService(ObjectMapper objectMapper, QueueProvider queueProvider) {
         this.objectMapper = objectMapper;
-    }
-
-
-    @Override
-    public void afterPropertiesSet() {
-        Map<String, QueueConfig> queueConfigs = queueProperties.getConfigs();
-        for (Map.Entry<String, QueueConfig> configEntry : queueConfigs.entrySet()) {
-            var topic = configEntry.getKey();
-            var config = configEntry.getValue();
-            var queue = new ArrayBlockingQueue<>(config.getSize());
-            QUEUES.put(topic, queue);
-        }
+        this.queueProvider = queueProvider;
     }
 
 
     public <T> Optional<T> consume(String topic, Class<T> clazz) {
-        Queue<Object> queue = get(topic);
-        var object = queue.poll();
+        Optional<Object> value = queueProvider.consume(topic);
 
-        if (object == null) {
+        if (value.isEmpty()) {
             return Optional.empty();
         }
 
         try {
-            return Optional.of(objectMapper.readValue(object.toString(), clazz));
+            return Optional.of(objectMapper.readValue(value.get().toString(), clazz));
         } catch (JsonProcessingException e) {
-            logger.error("Wrong class for value [{}]", object);
+            logger.error("Wrong class for value [{}]", value);
             throw new QueueReadException();
         }
     }
 
 
-    public void produce(String topic, Object object) {
-        Queue<Object> queue = get(topic);
-        queue.add(object);
-    }
-
-
-    private Queue<Object> get(String topic) {
-        return Optional.ofNullable(QUEUES.get(topic)).orElseThrow(() -> {
-            logger.error("Queue with topic [{}] not found", topic);
-            throw new QueueTopicNotFoundException();
-        });
+    public void produce(String topic, Object value) {
+        queueProvider.produce(topic, value);
     }
 
 }

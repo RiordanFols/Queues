@@ -15,6 +15,7 @@
     <description>queues</description>
     <properties>
         <java.version>17</java.version>
+        <org.redisson.version>3.13.1</org.redisson.version>
     </properties>
     <dependencies>
         <!-- SPRING -->
@@ -39,6 +40,12 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <!-- REDISSON -->
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>${org.redisson.version}</version>
         </dependency>
 
         <!-- LOMBOK -->
