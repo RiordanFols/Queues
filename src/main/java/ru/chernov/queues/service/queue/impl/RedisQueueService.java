@@ -4,7 +4,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import ru.chernov.queues.config.properties.RedissonProperties;
-import ru.chernov.queues.service.TopicStore;
+import ru.chernov.queues.service.TopicService;
 import ru.chernov.queues.service.queue.QueueProvider;
 
 import java.util.Optional;
@@ -17,21 +17,21 @@ import static ru.chernov.queues.consts.Profiles.REDIS_QUEUE;
 public class RedisQueueService implements QueueProvider {
     private final RedissonClient redissonClient;
     private final RedissonProperties redissonProperties;
-    private final TopicStore topicStore;
+    private final TopicService topicService;
 
 
     public RedisQueueService(RedissonClient redissonClient,
                              RedissonProperties redissonProperties,
-                             TopicStore topicStore) {
+                             TopicService topicService) {
         this.redissonClient = redissonClient;
         this.redissonProperties = redissonProperties;
-        this.topicStore = topicStore;
+        this.topicService = topicService;
     }
 
 
     @Override
     public Optional<Object> consume(String topic) {
-        topicStore.validate(topic);
+        topicService.validate(topic);
 
         String key = key(topic);
         Object value = redissonClient.getBlockingQueue(key).poll();
@@ -41,7 +41,7 @@ public class RedisQueueService implements QueueProvider {
 
     @Override
     public void produce(String topic, Object value) {
-        topicStore.validate(topic);
+        topicService.validate(topic);
 
         String key = key(topic);
         redissonClient.getBlockingQueue(key).add(value);

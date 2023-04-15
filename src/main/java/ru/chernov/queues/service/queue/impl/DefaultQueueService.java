@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import ru.chernov.queues.config.properties.TopicProperties;
 import ru.chernov.queues.config.properties.TopicProperties.QueueConfig;
-import ru.chernov.queues.service.TopicStore;
+import ru.chernov.queues.service.TopicService;
 import ru.chernov.queues.service.queue.QueueProvider;
 
 import java.util.HashMap;
@@ -23,12 +23,12 @@ public class DefaultQueueService implements QueueProvider, InitializingBean {
     private static final Map<String, Queue<Object>> QUEUES = new HashMap<>();
 
     private final TopicProperties topicProperties;
-    private final TopicStore topicStore;
+    private final TopicService topicService;
 
 
-    public DefaultQueueService(TopicProperties topicProperties, TopicStore topicStore) {
+    public DefaultQueueService(TopicProperties topicProperties, TopicService topicService) {
         this.topicProperties = topicProperties;
-        this.topicStore = topicStore;
+        this.topicService = topicService;
     }
 
 
@@ -45,7 +45,7 @@ public class DefaultQueueService implements QueueProvider, InitializingBean {
 
     @Override
     public Optional<Object> consume(String topic) {
-        topicStore.validate(topic);
+        topicService.validate(topic);
 
         Queue<Object> queue = QUEUES.get(topic);
         Object value = queue.poll();
@@ -55,7 +55,7 @@ public class DefaultQueueService implements QueueProvider, InitializingBean {
 
     @Override
     public void produce(String topic, Object object) {
-        topicStore.validate(topic);
+        topicService.validate(topic);
 
         Queue<Object> queue = QUEUES.get(topic);
         queue.add(object);
