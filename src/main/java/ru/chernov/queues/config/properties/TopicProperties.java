@@ -6,13 +6,19 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Map;
+import java.util.Optional;
 
 
 @Data
 @ConfigurationProperties(prefix = "application.queue")
-public class QueueProperties {
-    private static final Logger logger = LogManager.getLogger(QueueProperties.class);
+public class TopicProperties {
+    private static final Logger logger = LogManager.getLogger(TopicProperties.class);
     private Map<String, QueueConfig> configs;
+
+
+    public Optional<QueueConfig> getConfig(String topic) {
+        return Optional.ofNullable(configs.get(topic));
+    }
 
 
     @Data
