@@ -16,12 +16,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-public class QueueTest extends AbstractTest {
-    private static final String RECEIPTS_TOPIC = "receipts";
-    private static final String NEWS_TOPIC = "news";
-    private static final String WRONG_TOPIC = "wrong_topic12345";
+abstract class AbstractQueueTest extends AbstractTest {
     private static final Random RANDOM = new Random();
     private static final Integer ITERATIONS = 15;
+    protected static final String RECEIPTS_TOPIC = "receipts";
+    protected static final String NEWS_TOPIC = "news";
+    protected static final String WRONG_TOPIC = "wrong_topic12345";
 
 
     @Test
@@ -71,7 +71,6 @@ public class QueueTest extends AbstractTest {
         assertTrue(terminated);
         assertNull(produceFuture.get());
         assertNull(consumeFuture.get());
-
     }
 
 
@@ -114,7 +113,7 @@ public class QueueTest extends AbstractTest {
     }
 
 
-    private Callable<Exception> produce(String topic) {
+    protected Callable<Exception> produce(String topic) {
         return () -> {
             try {
                 for (var i = 0; i < ITERATIONS; i++) {
@@ -129,7 +128,7 @@ public class QueueTest extends AbstractTest {
     }
 
 
-    private Callable<Exception> consume(String topic) {
+    protected Callable<Exception> consume(String topic) {
         return () -> {
             try {
                 for (var i = 0; i < ITERATIONS; i++) {

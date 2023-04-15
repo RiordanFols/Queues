@@ -1,0 +1,13 @@
+singleServerConfig:
+  clientName: redisson_queues
+  connectionMinimumIdleSize: 2
+  connectionPoolSize: 10
+  subscriptionConnectionMinimumIdleSize: 2
+  subscriptionConnectionPoolSize: 50
+  subscriptionsPerConnection: 40
+  retryAttempts: 5
+  retryInterval: 5000
+  connectTimeout: 10000
+  timeout: 5000
+threads: 2
+nettyThreads: 4
